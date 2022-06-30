@@ -320,22 +320,39 @@ const doBattle = (forces_mine, forces_theirs, rounds) => {
     });
     return avg;
   };
+  let min = (arr) => {
+    let keys = Object.keys(arr[0]);
+    let min = {};
+    keys.forEach((k) => {
+      min[k] = arr.reduce((p, c) => p < c[k] ? p : c[k], 99999999);
+    });
+    return min;
+  };
+  let max = (arr) => {
+    let keys = Object.keys(arr[0]);
+    let max = {};
+    keys.forEach((k) => {
+      max[k] = arr.reduce((p, c) => p > c[k] ? p : c[k], 0);
+    });
+    return max;
+  };
   // console.log((100 * wins) / rounds, (100 * draws) / rounds);
   // console.log(avg(losses.map((a) => a[0])));
   // console.log(avg(losses.map((a) => a[1])));
-  let loss_m = avg(losses.map((a) => a[0]));
-  let loss_t = avg(losses.map((a) => a[1]));
+  let loss_m = [avg(losses.map((a) => a[0])), min(losses.map((a) => a[0])), max(losses.map((a) => a[0]))];
+  let loss_t = [avg(losses.map((a) => a[1])), min(losses.map((a) => a[1])), max(losses.map((a) => a[1]))];
   console.log(loss_m);
   let text = `Results:
   Wins: ${decimal((100 * wins) / rounds)}%
   Draws: ${decimal((100 * draws) / rounds)}%
   Losses: ${decimal(100 - (100 * wins) / rounds)}%
-  Expected losses (you): ${Object.keys(loss_m)
-    .map((a) => `${units_info[a].name ?? a}: ${decimal(loss_m[a])}`)
+  Expected losses (you): ${Object.keys(loss_m[0])
+    .map((a) => `${units_info[a].name ?? a}: ${decimal(loss_m[0][a])}${loss_m[1][a] != loss_m[2][a] ? " (" + loss_m[1][a] + "-" + loss_m[2][a] +")" : ""}`)
     .join(" ")}
-    Expected losses (orcs): ${Object.keys(loss_t)
-      .map((a) => `${units_info[a].name ?? a}: ${decimal(loss_t[a])}`)
+    Expected losses (orcs): ${Object.keys(loss_t[0])
+      .map((a) => `${units_info[a].name ?? a}: ${decimal(loss_t[0][a])}${loss_t[1][a] != loss_t[2][a] ? " (" + loss_t[1][a] + "-" + loss_t[2][a] +")" : ""}`)
       .join(" ")}`;
+  console.log(text);
   document.getElementById("results").innerText = text;
 };
 
