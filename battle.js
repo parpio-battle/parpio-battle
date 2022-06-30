@@ -132,7 +132,7 @@ let units_info = {
     attack: 90,
     crit: 0.6,
     order: 7,
-    skills: { reach: true, double: true },
+    skills: { reach: true },
   },
   warg: {
     name: "Warg Rider",
