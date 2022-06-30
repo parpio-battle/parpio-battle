@@ -1,0 +1,9 @@
+#town {
+  display: flex;
+  flex-direction: row;
+}
+
+.unitEntry {
+  display: flex;
+  flex-direction: column;
+}
