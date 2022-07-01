@@ -12,7 +12,7 @@ let units_info = {
     attack: 5,
     crit: 0.8,
     order: 0,
-	tier: 1,
+	  tier: 1,
     skills: {},
   },
   archer: {
@@ -22,7 +22,7 @@ let units_info = {
     attack: 20,
     crit: 0.8,
     order: 5,
-	tier: 1,
+	  tier: 1,
     skills: { reach: true },
   },
   recruit: {
@@ -32,7 +32,7 @@ let units_info = {
     attack: 15,
     crit: 0.8,
     order: 1,
-	tier: 1,
+	  tier: 1,
     skills: {},
   },
   cavalry: {
@@ -42,7 +42,7 @@ let units_info = {
     attack: 5,
     crit: 0.8,
     order: 4,
-	tier: 2,
+	  tier: 2,
     skills: { flanking: true, first: true },
   },
   longbow: {
@@ -52,7 +52,7 @@ let units_info = {
     attack: 15,
     crit: 0.8,
     order: 6,
-	tier: 2,
+	  tier: 2,
     skills: { reach: true, double: true },
   },
   knight: {
@@ -62,7 +62,7 @@ let units_info = {
     attack: 20,
     crit: 0.8,
     order: 2,
-	tier: 3,
+	  tier: 3,
     skills: {},
   },
   crossbow: {
@@ -72,7 +72,7 @@ let units_info = {
     attack: 90,
     crit: 0.8,
     order: 7,
-	tier: 3,
+	  tier: 3,
     skills: { reach: true },
   },
   horse2: {
@@ -82,7 +82,7 @@ let units_info = {
     attack: 10,
     crit: 0.8,
     order: 3,
-	tier: 4,
+	  tier: 4,
     skills: { first: true },
   },
   cannon: {
@@ -92,7 +92,7 @@ let units_info = {
     attack: 80,
     crit: 0.8,
     order: 8,
-	tier: 4,
+	  tier: 4,
     skills: { reach: true, trample: true, flanking: true, last: true },
   },
   orkling: {
@@ -101,7 +101,7 @@ let units_info = {
     attack: 5,
     crit: 0.6,
     order: 0,
-	tier: 1,
+	  tier: 1,
     skills: {},
   },
   hunter: {
@@ -110,7 +110,7 @@ let units_info = {
     attack: 20,
     crit: 0.6,
     order: 5,
-	tier: 1,
+	  tier: 1,
     skills: { reach: true },
   },
   raider: {
@@ -119,7 +119,7 @@ let units_info = {
     attack: 15,
     crit: 0.6,
     order: 1,
-	tier: 1,
+	  tier: 1,
     skills: {},
   },
   elitehunter: {
@@ -128,7 +128,7 @@ let units_info = {
     attack: 15,
     crit: 0.6,
     order: 6,
-	tier: 2,
+	  tier: 2,
     skills: { reach: true, double: true },
   },
   veteran: {
@@ -137,7 +137,7 @@ let units_info = {
     attack: 20,
     crit: 0.6,
     order: 2,
-	tier: 3,
+	  tier: 3,
     skills: {},
   },
   sniper: {
@@ -146,7 +146,7 @@ let units_info = {
     attack: 90,
     crit: 0.6,
     order: 7,
-	tier: 3,
+	  tier: 3,
     skills: { reach: true },
   },
   warg: {
@@ -155,7 +155,7 @@ let units_info = {
     attack: 5,
     crit: 0.6,
     order: 4,
-	tier: 2,
+	  tier: 2,
     skills: { flanking: true, first: true },
   },
   vanguard: {
@@ -164,7 +164,7 @@ let units_info = {
     attack: 10,
     crit: 0.6,
     order: 3,
-	tier: 4,
+	  tier: 4,
     skills: { first: true },
   },
   demolisher: {
@@ -173,7 +173,7 @@ let units_info = {
     attack: 80,
     crit: 0.6,
     order: 8,
-	tier: 4,
+	  tier: 4,
     skills: { reach: true, trample: true, flanking: true, last: true },
   },
   boss1: {
@@ -182,7 +182,7 @@ let units_info = {
     attack: 150,
     crit: 0.5,
     order: 100,
-	tier: 100,
+	  tier: 100,
     skills: { trample: true, last: true },
   },
   boss2: {
@@ -191,7 +191,7 @@ let units_info = {
     attack: 300,
     crit: 0.5,
     order: 100,
-	tier: 150,
+	  tier: 150,
     skills: { trample: true, last: true },
   },
   boss3: {
@@ -200,7 +200,7 @@ let units_info = {
     attack: 100,
     crit: 0.5,
     order: 3.5,
-	tier: 200,
+	  tier: 200,
     skills: { trample: true, last: true },
   },
   boss4: {
@@ -209,7 +209,7 @@ let units_info = {
     attack: 500,
     crit: 0.5,
     order: 100,
-	tier: 300,
+	  tier: 300,
     skills: { trample: true, first: true },
   },
 };
@@ -306,6 +306,51 @@ let forces_mine = {
   cannon: 0,
 };
 
+const resolve_combat = (units_mine, units_theirs) => {
+  while (true) {
+    {
+      let first_a = units_mine.filter(
+        (a) => a.skills.first || a.skills.double
+      );
+      let first_b = units_theirs.filter(
+        (a) => a.skills.first || a.skills.double
+      ); // console.log(first_a, first_b);
+      attack(first_a, units_theirs);
+      attack(first_b, units_mine); // console.log(units_mine, units_theirs);
+      units_mine = remove_dead(units_mine);
+      units_theirs = remove_dead(units_theirs);
+      if (units_mine.length == 0 || units_theirs.length == 0) break;
+    } // console.log(units_mine, units_theirs);
+    {
+      let first_a = units_mine.filter(
+        (a) => !(a.skills.first || a.skills.double || a.skills.last)
+      );
+      let first_b = units_theirs.filter(
+        (a) => !(a.skills.first || a.skills.double || a.skills.last)
+      );
+      attack(first_a, units_theirs);
+      attack(first_b, units_mine);
+      units_mine = remove_dead(units_mine);
+      units_theirs = remove_dead(units_theirs);
+      if (units_mine.length == 0 || units_theirs.length == 0) break;
+    }
+    {
+      let first_a = units_mine.filter(
+        (a) => a.skills.last || a.skills.double
+      );
+      let first_b = units_theirs.filter(
+        (a) => a.skills.last || a.skills.double
+      );
+      attack(first_a, units_theirs);
+      attack(first_b, units_mine);
+      units_mine = remove_dead(units_mine);
+      units_theirs = remove_dead(units_theirs);
+      if (units_mine.length == 0 || units_theirs.length == 0) break;
+    }
+  }
+  return [units_mine, units_theirs];
+}
+
 const decimal = (v) => Math.round(v * 100) / 100;
 const doBattle = (forces_mine, forces_theirs, rounds) => {
   Object.keys(units_info).forEach((u) => {
@@ -318,47 +363,7 @@ const doBattle = (forces_mine, forces_theirs, rounds) => {
   for (let i = 0; i < rounds; i++) {
     let units_mine = get_units(forces_mine);
     let units_theirs = get_units(forces_theirs);
-    while (true) {
-      {
-        let first_a = units_mine.filter(
-          (a) => a.skills.first || a.skills.double
-        );
-        let first_b = units_theirs.filter(
-          (a) => a.skills.first || a.skills.double
-        ); // console.log(first_a, first_b);
-        attack(first_a, units_theirs);
-        attack(first_b, units_mine); // console.log(units_mine, units_theirs);
-        units_mine = remove_dead(units_mine);
-        units_theirs = remove_dead(units_theirs);
-        if (units_mine.length == 0 || units_theirs.length == 0) break;
-      } // console.log(units_mine, units_theirs);
-      {
-        let first_a = units_mine.filter(
-          (a) => !(a.skills.first || a.skills.double || a.skills.last)
-        );
-        let first_b = units_theirs.filter(
-          (a) => !(a.skills.first || a.skills.double || a.skills.last)
-        );
-        attack(first_a, units_theirs);
-        attack(first_b, units_mine);
-        units_mine = remove_dead(units_mine);
-        units_theirs = remove_dead(units_theirs);
-        if (units_mine.length == 0 || units_theirs.length == 0) break;
-      }
-      {
-        let first_a = units_mine.filter(
-          (a) => a.skills.last || a.skills.double
-        );
-        let first_b = units_theirs.filter(
-          (a) => a.skills.last || a.skills.double
-        );
-        attack(first_a, units_theirs);
-        attack(first_b, units_mine);
-        units_mine = remove_dead(units_mine);
-        units_theirs = remove_dead(units_theirs);
-        if (units_mine.length == 0 || units_theirs.length == 0) break;
-      }
-    }
+    [units_mine, units_theirs] = resolve_combat(units_mine, units_theirs);
     if (units_theirs.length == 0) {
       wins++;
       if (units_mine.length == 0) draws++;
@@ -420,6 +425,166 @@ const doBattle = (forces_mine, forces_theirs, rounds) => {
   document.getElementById("results").innerText = text;
 };
 
+// Start of optimizer section
+// Tries to find the troop configuration with the shortest battle duration that meets the goal by picking 100 troops out of the ones available
+const GOAL_SURE_WIN = 'SURE_WIN'; // Will win even if you never crit and the enemy always does
+const GOAL_POSSIBLE_WIN = 'POSSIBLE_WIN'; // Will win if you always crit and the enemy never does
+const GOAL_NO_CASUALTIES = 'NO_CASUALTIES'; // Same as SURE_WIN, but no casualties allowed
+
+// Checks if a given army can fulfill the given goal
+const check_if_army_can_reach_goal = (army_mine, forces_theirs, goal) => {
+  //console.log(army_mine);
+  let crit_mine = 0;
+  let crit_theirs = 1;
+  if (goal === GOAL_POSSIBLE_WIN) {
+	  crit_mine = 1;
+	  crit_theirs = 0;
+  }
+  let units_mine = get_units(army_mine);
+  units_mine.forEach((o) => o.crit = crit_mine);
+  let troop_count = units_mine.length;
+  let units_theirs = get_units(forces_theirs);
+  units_theirs.forEach((o) => o.crit = crit_theirs);
+  [units_mine, units_theirs] = resolve_combat(units_mine, units_theirs);
+  
+  if (goal === GOAL_NO_CASUALTIES) {
+    if (units_mine.length === troop_count)
+      return true;
+    else
+      return false;
+  }
+  if (units_theirs.length === 0) // We won!
+    return true;
+  
+  return false;
+}
+
+// Builds all armies it can with exactly the given tier sum, and executes the given function on them. Returns the successful army if the function returns true, otherwise returns null.
+// Parameter function signature: func(army) returns boolean
+// Recursive
+var optimization_cancelled = false; // Global
+const act_on_armies_of_tier_sum = (forces, unit_types, index, current_army, current_tiersum, target_tiersum, func) => {
+  if (optimization_cancelled)
+    return null;
+  
+  //console.log(`Start: index ${index}, current ${current_tiersum}, target ${target_tiersum}`);
+  let next_army = { ...current_army };
+  let current_unit_count = Object.keys(current_army).reduce((p, c) => p + current_army[c], 0);
+  
+  // Not the last unit: keep adding more units, and try to fill the rest of the tier sum up with the remaining units
+  if (index < unit_types.length - 1) {
+    //console.log("Not the last unit");
+    for (let i = 0; i <= Math.min(forces[unit_types[index]], 100 - current_unit_count); i++) {
+      let next_tiersum = current_tiersum + i * units_info[unit_types[index]].tier;
+      next_army[unit_types[index]] = i;
+      // We have space left, recurse through remaining units
+      if (next_tiersum < target_tiersum) {
+        let winning_army = act_on_armies_of_tier_sum(forces, unit_types, index + 1, next_army, next_tiersum, target_tiersum, func);
+        if (winning_army != null)
+          return winning_army;
+        // No else, continue through the loop if we don't have a winner
+      }
+      // Exact hit of wanted tier sum, execute function
+      else if (next_tiersum === target_tiersum) {
+        let result = func(next_army);
+        if (result)
+          return next_army; // We have a winner!!!
+        else
+          return null; // Nothing more to do here
+      }
+      // Tier sum too large, get out
+      else {
+        return null;
+      }
+    }
+    return null; // Loop is finished
+  }
+  // Special handling of the last unit
+  else {
+    //console.log("Last unit");
+    let remaining_tier = target_tiersum - current_tiersum;
+    // We can match the target tiersum
+    if (remaining_tier > 0 && (remaining_tier%units_info[unit_types[index]].tier) === 0) {
+      next_army[unit_types[index]] = Math.min(remaining_tier / units_info[unit_types[index]].tier, Math.min(forces[unit_types[index]], 100 - current_unit_count));
+      let result = func(next_army);
+      if (result)
+        return next_army; // We have a winner!!!
+      else
+        return null; // Nothing more to do here
+    }
+    // We cant match the target tiersum, get out
+    else {
+      return null;
+    }
+  }
+  console.log("We shouldn't get here!");
+  return null;
+}
+
+// Calculates the maximum possible tier sum with a set of forces
+// Relies on units being present in ascending tier order
+const calc_max_tiersum = (forces, available_types) => {
+  let remaining_slots = 100;
+  let tiersum = 0;
+  for (let i = available_types.length - 1; i >= 0 && remaining_slots > 0; i--) {
+    let troops_to_add = Math.min(remaining_slots, forces[available_types[i]]);
+    remaining_slots -= troops_to_add;
+    tiersum += troops_to_add * units_info[available_types[i]].tier;
+  }
+  return tiersum;
+}
+
+const optimize_for_tiersum = (tiersum, max_tiersum, fixed_args) => {
+  winning_army = act_on_armies_of_tier_sum(fixed_args.forces_mine, fixed_args.available_types, 0, {}, 0, tiersum, fixed_args.func);
+  
+  if (winning_army == null && (tiersum == max_tiersum || optimization_cancelled)) { // No result and done
+    document.getElementById("progress_bar_outer").style.display = "none";
+    document.getElementById("cancel_optimization").style.display = "none";
+    document.getElementById("optimizer_results").innerText = optimization_cancelled ? "Cancelled" : "Impossible!";
+  } else if (winning_army != null) { // Result ==> done
+    let btime = format_seconds(battle_time(winning_army, fixed_args.forces_theirs, false));
+    let text = `Optimizer Results:
+  Troops to use: ${Object.keys(winning_army)
+    .map((a) => `${units_info[a].name ?? a}: ${winning_army[a]}`)
+    .join(" ")}
+  Battle time: ${btime}`;
+    document.getElementById("progress_bar_outer").style.display = "none";
+    document.getElementById("cancel_optimization").style.display = "none";
+    document.getElementById("optimizer_results").innerText = text;
+  } else { // No result and not done
+    document.getElementById("progress_bar_inner").style.width = 100 * Math.pow(tiersum, 1.3) / Math.pow(max_tiersum, 1.3) + "%";
+    window.setTimeout(() => optimize_for_tiersum(tiersum + 1, max_tiersum, fixed_args), 1);
+  }
+}
+
+const optimize = (forces_mine, forces_theirs, goal) => {
+  // Setup
+  let winning_army = null;
+  let available_types = [];
+  Object.keys(forces_mine).forEach((k) => {if(forces_mine[k] > 0) available_types.push(k);});
+  if (available_types.length == 0)
+    return;
+  
+  let max_tiersum = calc_max_tiersum(forces_mine, available_types);
+  
+  let fixed_args = {};
+  fixed_args.forces_mine = forces_mine;
+  fixed_args.forces_theirs = forces_theirs;
+  fixed_args.available_types = available_types;
+  fixed_args.func = (army) => check_if_army_can_reach_goal(army, forces_theirs, goal);
+  
+  // Loop over tier sum
+  optimization_cancelled = false;
+  document.getElementById("optimizer_results").innerText = "";
+  document.getElementById("progress_bar_outer").style.display = "flex";
+  document.getElementById("cancel_optimization").style.display = "flex";
+  optimize_for_tiersum(1, max_tiersum, fixed_args);
+}
+
+const cancel_optimization = () => {
+  optimization_cancelled = true;
+}
+
 //best ui framework ever!!!
 let ui_lookup = {};
 window.onload = () => {
@@ -462,4 +627,17 @@ const battle = () => {
     }
   });
   doBattle(player_forces, enemy_forces, rounds);
+};
+
+const optbutton = (goal) => {
+  let enemy_forces = {};
+  let player_forces = {};
+  Object.keys(units_info).forEach((k) => {
+    let c = parseInt(ui_lookup[k].value);
+    if (c > 0 && !isNaN(c)) {
+      if (units_info[k].player) player_forces[k] = c;
+      else enemy_forces[k] = c;
+    }
+  });
+  optimize(player_forces, enemy_forces, goal);
 };

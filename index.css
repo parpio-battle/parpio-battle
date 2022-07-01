@@ -7,3 +7,27 @@
   display: flex;
   flex-direction: column;
 }
+
+#progress_bar_outer {
+  display: none;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 50%;
+  height: 50px;
+  border: solid;
+  border-width: 2px;
+  border-radius: 3px;
+  border-color: black;
+}
+
+#progress_bar_inner {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 30%;
+  background-color: blue;
+}
+
+#cancel_optimization {
+  display: none;
+}
