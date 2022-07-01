@@ -12,6 +12,7 @@ let units_info = {
     attack: 5,
     crit: 0.8,
     order: 0,
+	tier: 1,
     skills: {},
   },
   archer: {
@@ -21,6 +22,7 @@ let units_info = {
     attack: 20,
     crit: 0.8,
     order: 5,
+	tier: 1,
     skills: { reach: true },
   },
   recruit: {
@@ -30,6 +32,7 @@ let units_info = {
     attack: 15,
     crit: 0.8,
     order: 1,
+	tier: 1,
     skills: {},
   },
   cavalry: {
@@ -39,6 +42,7 @@ let units_info = {
     attack: 5,
     crit: 0.8,
     order: 4,
+	tier: 2,
     skills: { flanking: true, first: true },
   },
   longbow: {
@@ -48,6 +52,7 @@ let units_info = {
     attack: 15,
     crit: 0.8,
     order: 6,
+	tier: 2,
     skills: { reach: true, double: true },
   },
   knight: {
@@ -57,6 +62,7 @@ let units_info = {
     attack: 20,
     crit: 0.8,
     order: 2,
+	tier: 3,
     skills: {},
   },
   crossbow: {
@@ -66,6 +72,7 @@ let units_info = {
     attack: 90,
     crit: 0.8,
     order: 7,
+	tier: 3,
     skills: { reach: true },
   },
   horse2: {
@@ -75,6 +82,7 @@ let units_info = {
     attack: 10,
     crit: 0.8,
     order: 3,
+	tier: 4,
     skills: { first: true },
   },
   cannon: {
@@ -84,6 +92,7 @@ let units_info = {
     attack: 80,
     crit: 0.8,
     order: 8,
+	tier: 4,
     skills: { reach: true, trample: true, flanking: true, last: true },
   },
   orkling: {
@@ -92,6 +101,7 @@ let units_info = {
     attack: 5,
     crit: 0.6,
     order: 0,
+	tier: 1,
     skills: {},
   },
   hunter: {
@@ -100,6 +110,7 @@ let units_info = {
     attack: 20,
     crit: 0.6,
     order: 5,
+	tier: 1,
     skills: { reach: true },
   },
   raider: {
@@ -108,6 +119,7 @@ let units_info = {
     attack: 15,
     crit: 0.6,
     order: 1,
+	tier: 1,
     skills: {},
   },
   elitehunter: {
@@ -116,6 +128,7 @@ let units_info = {
     attack: 15,
     crit: 0.6,
     order: 6,
+	tier: 2,
     skills: { reach: true, double: true },
   },
   veteran: {
@@ -124,6 +137,7 @@ let units_info = {
     attack: 20,
     crit: 0.6,
     order: 2,
+	tier: 3,
     skills: {},
   },
   sniper: {
@@ -132,6 +146,7 @@ let units_info = {
     attack: 90,
     crit: 0.6,
     order: 7,
+	tier: 3,
     skills: { reach: true },
   },
   warg: {
@@ -140,31 +155,62 @@ let units_info = {
     attack: 5,
     crit: 0.6,
     order: 4,
+	tier: 2,
     skills: { flanking: true, first: true },
   },
+  vanguard: {
+    name: "Orc Vanguard",
+    hp: 120,
+    attack: 10,
+    crit: 0.6,
+    order: 3,
+	tier: 4,
+    skills: { first: true },
+  },
+  demolisher: {
+    name: "Orc Demolisher",
+    hp: 60,
+    attack: 80,
+    crit: 0.6,
+    order: 8,
+	tier: 4,
+    skills: { reach: true, trample: true, flanking: true, last: true },
+  },
   boss1: {
-    name: "Aguk, the Destroyer",
+    name: "Bula (boss 1)",
     hp: 5000,
     attack: 150,
     crit: 0.5,
     order: 100,
+	tier: 100,
     skills: { trample: true, last: true },
   },
   boss2: {
-    name: "Recruit Boss",
+    name: "Aguk (boss 2)",
     hp: 11000,
     attack: 300,
     crit: 0.5,
     order: 100,
+	tier: 150,
     skills: { trample: true, last: true },
   },
   boss3: {
-    name: "Knight Boss",
+    name: "Mazoga (boss 3)",
     hp: 120000,
     attack: 100,
     crit: 0.5,
-    order: 100,
+    order: 3.5,
+	tier: 200,
     skills: { trample: true, last: true },
+  },
+  boss4: {
+    name: "Durgash (boss 4)",
+    hp: 40000,
+    attack: 500,
+    crit: 0.5,
+    order: 100,
+	tier: 300,
+    skills: { trample: true, first: true },
   },
 };
 Object.keys(units_info).forEach((f) => {
@@ -218,6 +264,23 @@ const attack = (a, b) => {
     damage(b, dmg, unit.skills);
   });
 };
+
+// Calculate battle time in seconds
+const battle_time = (forces_mine, forces_theirs, perk) => {
+  let tier_sum = Object.keys(forces_mine).reduce((p, c) => p + forces_mine[c] * units_info[c].tier, 0);
+  tier_sum += Object.keys(forces_theirs).reduce((p, c) => p + forces_theirs[c] * units_info[c].tier, 0);
+  let result = Math.round(Math.pow(tier_sum * 2, 1.4));
+  if (perk) result = Math.max(0, result - 2*60*60) / 2;
+  return Math.min(result, 8*60*60);
+}
+
+const format_seconds = (seconds) => {
+  let out_seconds = seconds%60;
+  let minutes = Math.floor(seconds/60);
+  let hours = Math.floor(minutes/60);
+  minutes = minutes%60;
+  return (hours > 0 ? hours + "h " : "") + (minutes > 0 ? minutes + "m " : "") + (out_seconds > 0 ? out_seconds + "s " : "")
+}
 
 let forces_theirs = {
   orkling: 0,
@@ -320,22 +383,40 @@ const doBattle = (forces_mine, forces_theirs, rounds) => {
     });
     return avg;
   };
+  let min = (arr) => {
+    let keys = Object.keys(arr[0]);
+    let min = {};
+    keys.forEach((k) => {
+      min[k] = arr.reduce((p, c) => p < c[k] ? p : c[k], 99999999);
+    });
+    return min;
+  };
+  let max = (arr) => {
+    let keys = Object.keys(arr[0]);
+    let max = {};
+    keys.forEach((k) => {
+      max[k] = arr.reduce((p, c) => p > c[k] ? p : c[k], 0);
+    });
+    return max;
+  };
   // console.log((100 * wins) / rounds, (100 * draws) / rounds);
   // console.log(avg(losses.map((a) => a[0])));
   // console.log(avg(losses.map((a) => a[1])));
-  let loss_m = avg(losses.map((a) => a[0]));
-  let loss_t = avg(losses.map((a) => a[1]));
+  let loss_m = [avg(losses.map((a) => a[0])), min(losses.map((a) => a[0])), max(losses.map((a) => a[0]))];
+  let loss_t = [avg(losses.map((a) => a[1])), min(losses.map((a) => a[1])), max(losses.map((a) => a[1]))];
+  let btime = format_seconds(battle_time(forces_mine, forces_theirs, false));
   console.log(loss_m);
   let text = `Results:
   Wins: ${decimal((100 * wins) / rounds)}%
   Draws: ${decimal((100 * draws) / rounds)}%
   Losses: ${decimal(100 - (100 * wins) / rounds)}%
-  Expected losses (you): ${Object.keys(loss_m)
-    .map((a) => `${units_info[a].name ?? a}: ${decimal(loss_m[a])}`)
+  Expected losses (you): ${Object.keys(loss_m[0])
+    .map((a) => `${units_info[a].name ?? a}: ${decimal(loss_m[0][a])}${loss_m[1][a] != loss_m[2][a] ? " (" + loss_m[1][a] + "-" + loss_m[2][a] +")" : ""}`)
     .join(" ")}
-    Expected losses (orcs): ${Object.keys(loss_t)
-      .map((a) => `${units_info[a].name ?? a}: ${decimal(loss_t[a])}`)
-      .join(" ")}`;
+    Expected losses (orcs): ${Object.keys(loss_t[0])
+      .map((a) => `${units_info[a].name ?? a}: ${decimal(loss_t[0][a])}${loss_t[1][a] != loss_t[2][a] ? " (" + loss_t[1][a] + "-" + loss_t[2][a] +")" : ""}`)
+      .join(" ")}
+  Battle time: ${btime}`;
   document.getElementById("results").innerText = text;
 };
 
