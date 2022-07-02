@@ -17,6 +17,8 @@
 	<div>Optimizer: enter your available troops and the enemy force you want to fight above. The optimizer will tell you which of your troops to use to reach your goal with the shortest battle duration.</div>
 	</div>
 	<button onclick="optbutton(GOAL_POSSIBLE_WIN)">Possible Win</button>
+	<button onclick="optbutton(GOAL_LIKELY_WIN)">Likely Win</button>
+	<button onclick="optbutton(GOAL_ALMOST_SURE_WIN)">Almost Sure Win</button>
 	<button onclick="optbutton(GOAL_SURE_WIN)">Sure Win</button>
 	<button onclick="optbutton(GOAL_NO_CASUALTIES)">No casualties</button>
 	<div id="optimizer_results"></div>
@@ -25,10 +27,13 @@
 	<p>
 	<div>Optimizer Goals:</div>
 	<div>Possible Win: You win if you always crit and the enemy never does. Very unlikely to actually happen, this gives a lower bound for the amount of troops to send.</div>
+	<div>Likely Win: You win with your and enemy crit chance both at 70% for all units. Crits are not random here, unlike in the normal battle calculation. Depending on the battle the loss chance is between around 10% and 50%, so test in the simulator before trying it ingame!</div>
+	<div>Almost Sure Win: You win with your crit chance at 40% and enemy crit chance at 90% for all units. Crits are not random here.</div>
 	<div>Sure Win: You win if you never crit and the enemy always does. Also very unlikely to actually happen, this gives an upper bound for the amount of troops to send.</div>
 	<div>No casualties: Same as sure win, but also you don't lose any soldiers.</div>
 	<p>
 	<div>Optimization can take very long if you use lots of different kinds of troops and large amounts of them, especially with a large enemy force.</div>
+	<div>Warning: the calculation is throttled in the background.</div>
 </body>
 
 </html>

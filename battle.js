@@ -257,10 +257,33 @@ const victoryCheck = (a, b) => {
     return true;
   return false;
 };
-const attack = (a, b) => {
+// Shuffles 0, 1, 2, ... 9 into 0, 9, 1, 8, ...
+const shuffle = (n, max) => {
+  if (n%2 === 0) {
+    return n / 2;
+  } else {
+    return max - ((n - 1) / 2)
+  }
+}
+let crit_counter = 0;
+const critical = (chance, deterministic_crits) => {
+  if (deterministic_crits) {
+    if (chance === 1)
+      return true;
+    if (chance === 0)
+      return false;
+    
+    crit_counter++;
+    return shuffle(crit_counter%10, 9) < chance * 10
+  }
+  else {
+    return Math.random() < chance;
+  }
+}
+const attack = (a, b, deterministic_crits) => {
   a.forEach((unit) => {
     let dmg = unit.attack;
-    if (Math.random() < unit.crit) dmg *= 2;
+    if (critical(unit.crit, deterministic_crits)) dmg *= 2;
     damage(b, dmg, unit.skills);
   });
 };
@@ -306,7 +329,8 @@ let forces_mine = {
   cannon: 0,
 };
 
-const resolve_combat = (units_mine, units_theirs) => {
+const resolve_combat = (units_mine, units_theirs, deterministic_crits) => {
+  crit_counter = 0;
   while (true) {
     {
       let first_a = units_mine.filter(
@@ -315,8 +339,8 @@ const resolve_combat = (units_mine, units_theirs) => {
       let first_b = units_theirs.filter(
         (a) => a.skills.first || a.skills.double
       ); // console.log(first_a, first_b);
-      attack(first_a, units_theirs);
-      attack(first_b, units_mine); // console.log(units_mine, units_theirs);
+      attack(first_a, units_theirs, deterministic_crits);
+      attack(first_b, units_mine, deterministic_crits); // console.log(units_mine, units_theirs);
       units_mine = remove_dead(units_mine);
       units_theirs = remove_dead(units_theirs);
       if (units_mine.length == 0 || units_theirs.length == 0) break;
@@ -328,8 +352,8 @@ const resolve_combat = (units_mine, units_theirs) => {
       let first_b = units_theirs.filter(
         (a) => !(a.skills.first || a.skills.double || a.skills.last)
       );
-      attack(first_a, units_theirs);
-      attack(first_b, units_mine);
+      attack(first_a, units_theirs, deterministic_crits);
+      attack(first_b, units_mine, deterministic_crits);
       units_mine = remove_dead(units_mine);
       units_theirs = remove_dead(units_theirs);
       if (units_mine.length == 0 || units_theirs.length == 0) break;
@@ -341,8 +365,8 @@ const resolve_combat = (units_mine, units_theirs) => {
       let first_b = units_theirs.filter(
         (a) => a.skills.last || a.skills.double
       );
-      attack(first_a, units_theirs);
-      attack(first_b, units_mine);
+      attack(first_a, units_theirs, deterministic_crits);
+      attack(first_b, units_mine, deterministic_crits);
       units_mine = remove_dead(units_mine);
       units_theirs = remove_dead(units_theirs);
       if (units_mine.length == 0 || units_theirs.length == 0) break;
@@ -363,7 +387,7 @@ const doBattle = (forces_mine, forces_theirs, rounds) => {
   for (let i = 0; i < rounds; i++) {
     let units_mine = get_units(forces_mine);
     let units_theirs = get_units(forces_theirs);
-    [units_mine, units_theirs] = resolve_combat(units_mine, units_theirs);
+    [units_mine, units_theirs] = resolve_combat(units_mine, units_theirs, false);
     if (units_theirs.length == 0) {
       wins++;
       if (units_mine.length == 0) draws++;
@@ -427,8 +451,10 @@ const doBattle = (forces_mine, forces_theirs, rounds) => {
 
 // Start of optimizer section
 // Tries to find the troop configuration with the shortest battle duration that meets the goal by picking 100 troops out of the ones available
-const GOAL_SURE_WIN = 'SURE_WIN'; // Will win even if you never crit and the enemy always does
 const GOAL_POSSIBLE_WIN = 'POSSIBLE_WIN'; // Will win if you always crit and the enemy never does
+const GOAL_LIKELY_WIN = 'LIKELY_WIN'; // Will win with enemy and own crits both at 70% (including enemy bosses). Crits are deterministic.
+const GOAL_ALMOST_SURE_WIN = 'GOAL_ALMOST_SURE_WIN' // Will win with enemy crits at 90% and own crits at 40%. Crits are deterministic.
+const GOAL_SURE_WIN = 'SURE_WIN'; // Will win even if you never crit and the enemy always does
 const GOAL_NO_CASUALTIES = 'NO_CASUALTIES'; // Same as SURE_WIN, but no casualties allowed
 
 // Checks if a given army can fulfill the given goal
@@ -439,13 +465,19 @@ const check_if_army_can_reach_goal = (army_mine, forces_theirs, goal) => {
   if (goal === GOAL_POSSIBLE_WIN) {
 	  crit_mine = 1;
 	  crit_theirs = 0;
+  } else if (goal === GOAL_LIKELY_WIN) {
+	  crit_mine = 0.7;
+	  crit_theirs = 0.7;
+  } else if (goal === GOAL_ALMOST_SURE_WIN) {
+	  crit_mine = 0.4;
+	  crit_theirs = 0.9;
   }
   let units_mine = get_units(army_mine);
   units_mine.forEach((o) => o.crit = crit_mine);
   let troop_count = units_mine.length;
   let units_theirs = get_units(forces_theirs);
   units_theirs.forEach((o) => o.crit = crit_theirs);
-  [units_mine, units_theirs] = resolve_combat(units_mine, units_theirs);
+  [units_mine, units_theirs] = resolve_combat(units_mine, units_theirs, true);
   
   if (goal === GOAL_NO_CASUALTIES) {
     if (units_mine.length === troop_count)
