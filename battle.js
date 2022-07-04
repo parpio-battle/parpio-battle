@@ -566,7 +566,7 @@ const get_metrics_for_army = (army_mine, forces_theirs, metrics) => {
 	  crit_theirs = 0.9;
   }
   let units_mine = get_units(army_mine);
-  if (crite_mine != null)
+  if (crit_mine != null)
     units_mine.forEach((o) => o.crit = crit_mine);
   let troop_count = units_mine.length;
   let units_theirs = get_units(forces_theirs);
