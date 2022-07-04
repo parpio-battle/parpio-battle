@@ -14,7 +14,7 @@
     <button onclick="battle()">Battle!</button>
     <div id="results"></div>
 	<p>
-	<div>Optimizer: enter your available troops and the enemy force you want to fight above. The optimizer will tell you which of your troops to use to reach your goal with the shortest battle duration.</div>
+	<div>Simple Optimizer: enter your available troops and the enemy force you want to fight above. The optimizer will tell you which of your troops to use to reach your goal with the shortest battle duration.</div>
 	</div>
 	<button onclick="optbutton(GOAL_POSSIBLE_WIN)">Possible Win</button>
 	<button onclick="optbutton(GOAL_LIKELY_WIN)">Likely Win</button>
@@ -25,7 +25,15 @@
 	<div id="progress_bar_outer"><div id="progress_bar_inner"></div></div>
 	<button id="cancel_optimization" onclick="cancel_optimization()">Cancel</button>
 	<p>
-	<div>Optimizer Goals:</div>
+	<div>Advanced Optimizer: works the same as above, but lets you optimize for win with lowest losses or for most kills (or most valuable kills). Kills and losses are valued by unit tier (tier = building page - 1, except militia which are tier 1). Crit rates are regular ingame values. Takes longer because it always runs to the end.</div>
+	</div>
+	<button onclick="optbutton(GOAL_LOSSES)">Win with lowest losses</button>
+	<button onclick="optbutton(GOAL_KILLS)">Most kills</button>
+	<div id="adv_optimizer_results"></div>
+	<div id="adv_progress_bar_outer"><div id="adv_progress_bar_inner"></div></div>
+	<button id="adv_cancel_optimization" onclick="cancel_optimization()">Cancel</button>
+	<p>
+	<div>Simple Optimizer Goals:</div>
 	<div>Possible Win: You win if you always crit and the enemy never does. Very unlikely to actually happen, this gives a lower bound for the amount of troops to send.</div>
 	<div>Likely Win: You win with your and enemy crit chance both at 70% for all units. Crits are not random here, unlike in the normal battle calculation. Depending on the battle the loss chance is between around 10% and 50%, so test in the simulator before trying it ingame!</div>
 	<div>Almost Sure Win: You win with your crit chance at 40% and enemy crit chance at 90% for all units. Crits are not random here.</div>
