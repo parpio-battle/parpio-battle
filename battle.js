@@ -562,8 +562,8 @@ const get_metrics_for_army = (army_mine, forces_theirs, metrics) => {
 	  crit_mine = 0.4;
 	  crit_theirs = 0.9;
   } else if (metrics.goal === GOAL_SURE_WIN || metrics.goal === GOAL_NO_CASUALTIES) {
-	  crit_mine = 0.4;
-	  crit_theirs = 0.9;
+	  crit_mine = 0;
+	  crit_theirs = 1;
   }
   let units_mine = get_units(army_mine);
   if (crit_mine != null)
@@ -709,7 +709,7 @@ const optimize_for_tiersum = (tiersum, max_tiersum, fixed_args, best_result) => 
     }
     return; // Get out
   } else {
-    done = (tiersum === max_tiersum || (result != null && result.exit_early));
+    done = (tiersum === max_tiersum || (result != null && result.exit_early) || optimization_cancelled);
     
     // We might have to update our best result
     if (result != null) {
