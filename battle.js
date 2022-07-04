@@ -583,7 +583,7 @@ const get_metrics_for_army = (army_mine, forces_theirs, metrics) => {
   }
   
   // All goals except kills need to win. No casualties additionally needs no casualties.
-  step_result.good_result = step_result.win || metrics.goal === GOAL_KILLS;
+  step_result.good_result = step_result.win || (metrics.goal === GOAL_KILLS);
   if (metrics.goal === GOAL_NO_CASUALTIES)
     step_result.good_result = step_result.win && (units_mine.length === troop_count);
   
@@ -597,7 +597,7 @@ const get_metrics_for_army = (army_mine, forces_theirs, metrics) => {
 }
 
 // Builds all armies it can with exactly the given tier sum, and executes the given function on them. Returns the successful army if the function returns true, otherwise returns null.
-// Parameter function signature: func(army) returns boolean
+// Parameter function signature: func(army) returns null or an optimization result with minimal fields {exit_early, good_result, metric}
 // Recursive
 var optimization_cancelled = false; // Global
 const act_on_armies_of_tier_sum = (forces, unit_types, index, current_army, current_tiersum, target_tiersum, func) => {
@@ -648,6 +648,7 @@ const act_on_armies_of_tier_sum = (forces, unit_types, index, current_army, curr
             }
           }
         }
+        return best_result; // Done, get out
       }
       // Tier sum too large, get out
       else {
@@ -661,13 +662,20 @@ const act_on_armies_of_tier_sum = (forces, unit_types, index, current_army, curr
     //console.log("Last unit");
     let remaining_tier = target_tiersum - current_tiersum;
     // We can match the target tiersum
-    if (remaining_tier > 0 && (remaining_tier%units_info[unit_types[index]].tier) === 0) {
-      next_army[unit_types[index]] = Math.min(remaining_tier / units_info[unit_types[index]].tier, Math.min(forces[unit_types[index]], 100 - current_unit_count));
-      let result = func(next_army);
-      if (result.good_result)
-        return result; // Good one, return it
-      else
-        return null; // Nothing more to do here
+    if (remaining_tier > 0 && (remaining_tier%(units_info[unit_types[index]].tier)) === 0) {
+      let fitting_units = remaining_tier / units_info[unit_types[index]].tier;
+      if (fitting_units <= Math.min(forces[unit_types[index]], 100 - current_unit_count)) { // Can we actually use that many units?
+        next_army[unit_types[index]] = fitting_units;
+        let result = func(next_army);
+        if (result.good_result) {
+          return result; // Good one, return it
+        }
+        else
+          return null; // Nothing more to do here
+      }
+      else {
+        return null;
+      }
     }
     // We cant match the target tiersum, get out
     else {
@@ -747,7 +755,7 @@ const optimize_for_tiersum = (tiersum, max_tiersum, fixed_args, best_result) => 
       document.getElementById("adv_progress_bar_inner").style.width = 100 * Math.pow(tiersum, 1.3) / Math.pow(max_tiersum, 1.3) + "%";
     else
       document.getElementById("progress_bar_inner").style.width = 100 * Math.pow(tiersum, 1.3) / Math.pow(max_tiersum, 1.3) + "%";
-    window.setTimeout(() => optimize_for_tiersum(tiersum + 1, max_tiersum, fixed_args), 1, best_result);
+    window.setTimeout(() => optimize_for_tiersum(tiersum + 1, max_tiersum, fixed_args, best_result), 1);
   }
 }
 
