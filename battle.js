@@ -25,8 +25,8 @@ let units_info = {
 	tier: 1,
     skills: { reach: true },
   },
-  recruit: {
-    name: "Recruit",
+  footsoldier: {
+    name: "Footsoldier",
     player: true,
     hp: 40,
     attack: 15,
@@ -297,7 +297,7 @@ let forces_theirs = {
 let forces_mine = {
   militia: 0,
   archer: 0,
-  recruit: 0,
+  footsoldier: 0,
   cavalry: 0,
   longbow: 0,
   knight: 30,
