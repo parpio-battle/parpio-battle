@@ -749,6 +749,7 @@ const optimize_for_tiersum = (tiersum, max_tiersum, fixed_args, best_result) => 
       document.getElementById("cancel_optimization").style.display = "none";
       document.getElementById("optimizer_results").innerText = text;
     }
+    doBattle(best_result.army, fixed_args.forces_theirs, 1000)
   }
   else {
     if (fixed_args.advanced)
